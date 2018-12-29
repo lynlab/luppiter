@@ -15,11 +15,17 @@ require (
 	github.com/jinzhu/inflection v0.0.0-20180308033659-04140366298a // indirect
 	github.com/jinzhu/now v0.0.0-20180511015916-ed742868f2ae // indirect
 	github.com/kr/pretty v0.1.0 // indirect
-	github.com/lib/pq v1.0.0 // indirect
+	github.com/labstack/echo v3.3.5+incompatible
+	github.com/labstack/gommon v0.2.8 // indirect
+	github.com/lib/pq v1.0.0
+	github.com/mattn/go-colorable v0.0.9 // indirect
+	github.com/mattn/go-isatty v0.0.4 // indirect
 	github.com/mattn/go-sqlite3 v1.9.0 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/satori/go.uuid v1.2.0
 	github.com/stretchr/testify v1.2.2 // indirect
+	github.com/valyala/bytebufferpool v1.0.0 // indirect
+	github.com/valyala/fasttemplate v0.0.0-20170224212429-dcecefd839c4 // indirect
 	github.com/vimeo/go-magic v1.0.0
 	golang.org/x/crypto v0.0.0-20180910181607-0e37d006457b
 	golang.org/x/sys v0.0.0-20180920110915-d641721ec2de // indirect

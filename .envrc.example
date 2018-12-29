@@ -1,6 +1,3 @@
-export LUPPITER_HOST=
-export LUPPITER_SECRET_KEY=
-
 export DB_HOST=
 export DB_USERNAME=
 export DB_PASSWORD=

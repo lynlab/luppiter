@@ -1,0 +1,57 @@
+{{ define "index" }}
+<!DOCTYPE html>
+<head>
+  <title>LYnLab Luppiter</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <link rel="stylesheet" type="text/css" href="https://spoqa.github.io/spoqa-han-sans/css/SpoqaHanSans-kr.css">
+  <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/semantic-ui@2.4.2/dist/semantic.min.css">
+  <link rel="stylesheet" type="text/css" href="/statics/common.css">
+  <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/semantic-ui@2.4.2/dist/semantic.min.js"></script>
+</head>
+<body>
+  <div class="ui container" id="index">
+    <div class="ui inverted segment">
+      <div class="ui inverted secondary pointing menu">
+        <a class="item header active">LYnLab Luppiter</a>
+        <a class="item active">서비스</a>
+        <a class="item">도움말</a>
+        <a class="item right">
+          <button type="button" class="ui inverted button">로그인</button>
+        </a>
+      </div>
+    </div>
+
+    <h1>서비스 목록</h1>
+    <div class="ui three column grid row">
+      <a class="column" href="/web/services/auth">
+        <h3 class="ui icon header">
+          <i class="key icon"></i>
+          <div class="content">
+            API Key
+            <div class="sub header">API 호출에 필요한 인증 키를 관리합니다.</div>
+          </div>
+        </h3>
+      </a>
+      <div class="column">
+        <h3 class="ui icon header">
+          <i class="list icon"></i>
+          <div class="content">
+            Key Value
+            <div class="sub header">Key-Value 데이터를 저장, 조회합니다.</div>
+          </div>
+        </h3>
+      </div>
+      <div class="column">
+        <h3 class="ui icon header">
+          <i class="file alternate icon"></i>
+          <div class="content">
+            Storage
+            <div class="sub header">파일 데이터를 관리합니다.</div>
+          </div>
+        </h3>
+      </div>
+    </div>
+  </div>
+</body>
+{{ end }}

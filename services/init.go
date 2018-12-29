@@ -1,10 +1,9 @@
-package storage
+package services
 
 import "luppiter/components/database"
 
 func init() {
 	database.DB.AutoMigrate(
-		&StorageBucket{},
-		&StorageItem{},
+		APIKey{},
 	)
 }
