@@ -30,6 +30,25 @@ var apiKeyType = graphql.NewObject(graphql.ObjectConfig{
 	},
 })
 
+func checkPermission(key string, serviceName string) (*APIKey, error) {
+	if key == "" {
+		return nil, fmt.Errorf("authorization failed")
+	}
+
+	var apiKey APIKey
+	database.DB.Where(&APIKey{Key: key}).First(&apiKey)
+	if apiKey.UserUUID == "" {
+		return nil, fmt.Errorf("authorization failed")
+	}
+
+	for _, p := range apiKey.Permissions {
+		if p == (serviceName + "::*") {
+			return &apiKey, nil
+		}
+	}
+	return &apiKey, fmt.Errorf("insufficient permissions")
+}
+
 // APIKeysQuery returns [APIKey!]!
 var APIKeysQuery = &graphql.Field{
 	Type:        graphql.NewNonNull(graphql.NewList(graphql.NewNonNull(apiKeyType))),

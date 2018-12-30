@@ -30,8 +30,11 @@ func main() {
 		Query: graphql.NewObject(graphql.ObjectConfig{
 			Name: "RootQuery",
 			Fields: graphql.Fields{
-				// Auth queries.
+				// Auth query.
 				"apiKeyList": services.APIKeysQuery,
+
+				// KeyValue query.
+				"keyValueItem": services.KeyValueItemQuery,
 			},
 		}),
 		Mutation: graphql.NewObject(graphql.ObjectConfig{
@@ -41,6 +44,9 @@ func main() {
 				"createAPIKey":             services.CreateAPIKeyMutation,
 				"addPermissionToAPIKey":    services.AddPermissionToAPIKeyMutation,
 				"removePermissionToAPIKey": services.RemovePermissionToAPIKeyMutation,
+
+				// KeyValue mutation.
+				"setKeyValueItem": services.SetKeyValueItemMutation,
 			},
 		}),
 	})
