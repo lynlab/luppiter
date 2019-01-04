@@ -7,6 +7,10 @@ import (
 	"net/http"
 )
 
+var (
+	ErrInternal = fmt.Errorf("unknown error, please retry later")
+)
+
 type userInfo struct {
 	UUID     string
 	Username string

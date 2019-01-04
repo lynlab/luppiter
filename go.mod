@@ -9,6 +9,7 @@ require (
 	github.com/erikstmartin/go-testdb v0.0.0-20160219214506-8d10e4a1bae5 // indirect
 	github.com/go-sql-driver/mysql v1.4.0 // indirect
 	github.com/google/go-cmp v0.2.0 // indirect
+	github.com/google/pprof v0.0.0-20181206194817-3ea8567a2e57 // indirect
 	github.com/graphql-go/graphql v0.7.6
 	github.com/graphql-go/handler v0.2.2-0.20181013142353-28550b403f66
 	github.com/jinzhu/gorm v1.9.1
@@ -27,6 +28,7 @@ require (
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
 	github.com/valyala/fasttemplate v0.0.0-20170224212429-dcecefd839c4 // indirect
 	github.com/vimeo/go-magic v1.0.0
+	golang.org/x/arch v0.0.0-20181203225421-5a4828bb7045 // indirect
 	golang.org/x/crypto v0.0.0-20180910181607-0e37d006457b
 	golang.org/x/sys v0.0.0-20180920110915-d641721ec2de // indirect
 	google.golang.org/appengine v1.2.0 // indirect

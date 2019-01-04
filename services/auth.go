@@ -1,6 +1,7 @@
 package services
 
 import (
+	"errors"
 	"fmt"
 	"time"
 
@@ -30,15 +31,20 @@ var apiKeyType = graphql.NewObject(graphql.ObjectConfig{
 	},
 })
 
+var (
+	ErrUnauthorized     = errors.New("authorization failed")
+	ErrInsuffPermission = errors.New("insufficient permission")
+)
+
 func checkPermission(key string, serviceName string) (*APIKey, error) {
 	if key == "" {
-		return nil, fmt.Errorf("authorization failed")
+		return nil, ErrUnauthorized
 	}
 
 	var apiKey APIKey
 	database.DB.Where(&APIKey{Key: key}).First(&apiKey)
 	if apiKey.UserUUID == "" {
-		return nil, fmt.Errorf("authorization failed")
+		return nil, ErrUnauthorized
 	}
 
 	for _, p := range apiKey.Permissions {
@@ -46,7 +52,7 @@ func checkPermission(key string, serviceName string) (*APIKey, error) {
 			return &apiKey, nil
 		}
 	}
-	return &apiKey, fmt.Errorf("insufficient permissions")
+	return &apiKey, ErrInsuffPermission
 }
 
 // APIKeysQuery returns [APIKey!]!
@@ -122,25 +128,28 @@ var AddPermissionToAPIKeyMutation = &graphql.Field{
 			return nil, err
 		}
 
-		var key APIKey
 		input := p.Args["input"].(map[string]interface{})
-		database.DB.Where(&APIKey{UserUUID: user.UUID, Key: input["key"].(string)}).First(&key)
-		if key.UserUUID == "" {
-			return nil, fmt.Errorf("bad request")
-		}
-
-		// If permission already exists, do nothing.
-		permissionToAdd := input["permission"].(string)
-		for _, p := range key.Permissions {
-			if p == permissionToAdd {
-				return key, nil
-			}
-		}
-
-		key.Permissions = append(key.Permissions, permissionToAdd)
-		database.DB.Save(&key)
-		return key, nil
+		return addPermission(user.UUID, input["key"].(string), input["permission"].(string))
 	},
+}
+
+func addPermission(userUUID string, key string, permission string) (*APIKey, error) {
+	var k APIKey
+	database.DB.Where(&APIKey{UserUUID: userUUID, Key: key}).First(&k)
+	if k.UserUUID == "" {
+		return nil, ErrUnauthorized
+	}
+
+	// If permission already exists, do nothing.
+	for _, p := range k.Permissions {
+		if p == permission {
+			return &k, nil
+		}
+	}
+
+	k.Permissions = append(k.Permissions, permission)
+	database.DB.Save(&k)
+	return &k, nil
 }
 
 // RemovePermissionToAPIKeyMutation returns APIKey!

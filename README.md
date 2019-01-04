@@ -16,6 +16,7 @@
 
   - Go 1.11
   - PostgreSQL
+  - Docker
 
 ### Environment Variables
 
@@ -25,3 +26,13 @@ vi .envrc
 ```
 
 See `.envrc.example` for list of variables. You can use [direnv](http://direnv.net) to set these values.
+
+### Test & Run
+
+```sh
+# Run tests
+make test
+
+# Start server
+go run main.go
+```
