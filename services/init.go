@@ -6,5 +6,7 @@ func init() {
 	database.DB.AutoMigrate(
 		APIKey{},
 		KeyValueItem{},
+		StorageBucket{},
+		StorageItem{},
 	)
 }

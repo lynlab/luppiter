@@ -4,7 +4,9 @@ import (
 	"bytes"
 	"context"
 	"io"
+	"io/ioutil"
 	"net/http"
+	"strconv"
 	"strings"
 	"text/template"
 
@@ -21,6 +23,26 @@ func (t *Template) Render(w io.Writer, name string, data interface{}, c echo.Con
 	return t.templates.ExecuteTemplate(w, name, data)
 }
 
+func generateContext(c echo.Context) context.Context {
+	ctx := context.Background()
+	headers := c.Request().Header["Authorization"]
+	if len(headers) == 1 {
+		splits := strings.Split(headers[0], " ")
+		ctx = context.WithValue(ctx, "Authorization", splits[len(splits)-1])
+	} else {
+		ctx = context.WithValue(ctx, "Authorization", "")
+	}
+
+	key := c.QueryParam("key")
+	if key != "" {
+		ctx = context.WithValue(ctx, "APIKey", key)
+	} else {
+		ctx = context.WithValue(ctx, "APIKey", "")
+	}
+
+	return ctx
+}
+
 func main() {
 	e := echo.New()
 
@@ -35,6 +57,9 @@ func main() {
 
 				// KeyValue query.
 				"keyValueItem": services.KeyValueItemQuery,
+
+				// Storage query.
+				"storageBucketList": services.StorageBucketListQuery,
 			},
 		}),
 		Mutation: graphql.NewObject(graphql.ObjectConfig{
@@ -47,6 +72,9 @@ func main() {
 
 				// KeyValue mutation.
 				"setKeyValueItem": services.SetKeyValueItemMutation,
+
+				// Storage mutation.
+				"createStorageBucket": services.CreateStorageBucketMutation,
 			},
 		}),
 	})
@@ -62,30 +90,60 @@ func main() {
 		}
 
 		// Add authorization data.
-		ctx := context.Background()
-		headers := c.Request().Header["Authorization"]
-		if len(headers) == 1 {
-			splits := strings.Split(headers[0], " ")
-			ctx = context.WithValue(ctx, "Authorization", splits[len(splits)-1])
-		} else {
-			ctx = context.WithValue(ctx, "Authorization", "")
-		}
-
-		key := c.QueryParam("key")
-		if key != "" {
-			ctx = context.WithValue(ctx, "APIKey", key)
-		} else {
-			ctx = context.WithValue(ctx, "APIKey", "")
-		}
 
 		// Run query and return the result.
 		result := graphql.Do(graphql.Params{
 			Schema:        schema,
 			RequestString: req,
-			Context:       ctx,
+			Context:       generateContext(c),
 		})
 
 		return c.JSON(http.StatusOK, result)
+	})
+
+	/// File apis.
+	e.GET("/files/:bucketName/:itemName", func(c echo.Context) error {
+		// Cache control
+		c.Response().Header().Set("Cache-Control", "max-age=86400, public, immutable")
+		if headers := c.Request().Header["Cache-Control"]; len(headers) == 1 {
+			cacheControl := strings.Split(headers[0], "=")
+			if len(cacheControl) == 2 && cacheControl[0] == "max-age" {
+				age, _ := strconv.Atoi(cacheControl[1])
+				if age < 86400 {
+					return c.String(http.StatusNotModified, "")
+				}
+			}
+		}
+
+		// Download file from cloud storage and return it.
+		file, cType, err := services.DownloadStorageItem(generateContext(c), c.Param("bucketName"), c.Param("itemName"))
+		if err != nil {
+			return c.String(http.StatusNotFound, "")
+		}
+
+		data, err := ioutil.ReadAll(file)
+		if err != nil {
+			return c.String(http.StatusInternalServerError, "")
+		}
+
+		return c.Blob(http.StatusOK, cType, data)
+	})
+
+	e.POST("/files/:bucketName/:itemName", func(c echo.Context) error {
+		file, err := c.FormFile("file")
+		if err != nil {
+			return c.String(http.StatusBadRequest, "")
+		}
+		src, err := file.Open()
+		if err != nil {
+			return c.String(http.StatusBadRequest, "")
+		}
+
+		err = services.UploadStorageItem(generateContext(c), c.Param("bucketName"), c.Param("itemName"), src)
+		if err != nil {
+			return c.String(http.StatusBadRequest, "")
+		}
+		return c.String(http.StatusCreated, "")
 	})
 
 	/// HTTP web pages.
@@ -98,9 +156,15 @@ func main() {
 
 	/// Set middlewares
 	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
-		AllowOrigins: []string{"http://127.0.0.1", "http://luppiter.lynlab.co.kr", "https://luppiter.lynlab.co.kr"},
-		AllowHeaders: []string{echo.HeaderOrigin, echo.HeaderContentType, echo.HeaderAccept},
+		AllowOrigins: []string{
+			"http://127.0.0.1",
+			"http://luppiter.lynlab.co.kr",
+			"https://luppiter.lynlab.co.kr",
+		},
+		AllowHeaders: []string{echo.HeaderOrigin, echo.HeaderContentType, echo.HeaderAccept, "Cache-Control"},
 	}))
+	e.Use(middleware.GzipWithConfig(middleware.GzipConfig{Level: 5}))
+	e.Use(middleware.BodyLimit("10M"))
 
 	/// ... and server starts!
 	e.Logger.Fatal(e.Start(":1323"))

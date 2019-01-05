@@ -22,3 +22,6 @@
 # End of https://www.gitignore.io/api/go
 
 .envrc
+
+secrets/*
+!secrets/.gitkeep

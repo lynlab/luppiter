@@ -18,14 +18,16 @@
   - PostgreSQL
   - Docker
 
-### Environment Variables
+### Environment Setup
+
+See `.envrc.example` for list of variables. You can use [direnv](http://direnv.net) to set these values.
 
 ```sh
 cp .envrc.example .envrc
 vi .envrc
 ```
 
-See `.envrc.example` for list of variables. You can use [direnv](http://direnv.net) to set these values.
+Place GCP service account credential at `secrets/service-account.json`.
 
 ### Test & Run
 

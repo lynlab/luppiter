@@ -36,23 +36,31 @@ var (
 	ErrInsuffPermission = errors.New("insufficient permission")
 )
 
-func checkPermission(key string, serviceName string) (*APIKey, error) {
+func getAPIKey(key string) (*APIKey, bool) {
 	if key == "" {
-		return nil, ErrUnauthorized
+		return nil, false
 	}
 
 	var apiKey APIKey
 	database.DB.Where(&APIKey{Key: key}).First(&apiKey)
 	if apiKey.UserUUID == "" {
+		return nil, false
+	}
+	return &apiKey, true
+}
+
+func checkPermission(key string, serviceName string) (*APIKey, error) {
+	apiKey, ok := getAPIKey(key)
+	if !ok {
 		return nil, ErrUnauthorized
 	}
 
 	for _, p := range apiKey.Permissions {
 		if p == (serviceName + "::*") {
-			return &apiKey, nil
+			return apiKey, nil
 		}
 	}
-	return &apiKey, ErrInsuffPermission
+	return apiKey, ErrInsuffPermission
 }
 
 // APIKeysQuery returns [APIKey!]!

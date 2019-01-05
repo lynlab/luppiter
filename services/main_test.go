@@ -20,6 +20,8 @@ func TestMain(m *testing.M) {
 	database.DB.AutoMigrate(
 		APIKey{},
 		KeyValueItem{},
+		StorageBucket{},
+		StorageItem{},
 	)
 
 	testCtx = context.Background()
