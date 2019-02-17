@@ -1,0 +1,31 @@
+
+# Golang CircleCI 2.0 configuration file
+#
+# Check https://circleci.com/docs/2.0/language-go/ for more details
+version: 2
+jobs:
+  build:
+    docker:
+      - image: circleci/golang:1.11
+        environment:
+          GO111MODULE: 'on'
+
+    working_directory: /go/src/github.com/lynlab/luppiter
+    steps:
+      - checkout
+      - setup_remote_docker:
+          docker_layer_caching: true
+      - run: go mod download
+      - run:
+          when: on_success
+          command: bash <(curl -s https://codecov.io/bash)
+      - run:
+          when: on_success
+          command: |
+            docker login -u "$DOCKER_USERNAME" -p "$DOCKER_PASSWORD";
+            docker build -t lynlab/luppiter:latest .;
+            docker push lynlab/luppiter:latest;
+            if [ -n "${CIRCLE_TAG}" ]; then
+              docker build -t lynlab/luppiter:${CIRCLE_TAG} .;
+              docker push lynlab/luppiter:${CIRCLE_TAG};
+            fi

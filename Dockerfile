@@ -9,7 +9,7 @@ COPY . .
 ENV GO11MODULE on
 
 RUN go mod download
-RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a -ldflags '-s' -o luppiter luppiter.go 
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a -ldflags '-s' -o luppiter .
 
 
 ### Make executable image
