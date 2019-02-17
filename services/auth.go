@@ -32,7 +32,6 @@ var apiKeyType = graphql.NewObject(graphql.ObjectConfig{
 })
 
 var (
-	ErrUnauthorized     = errors.New("authorization failed")
 	ErrInsuffPermission = errors.New("insufficient permission")
 )
 
@@ -160,14 +159,14 @@ func addPermission(userUUID string, key string, permission string) (*APIKey, err
 	return &k, nil
 }
 
-// RemovePermissionToAPIKeyMutation returns APIKey!
-var RemovePermissionToAPIKeyMutation = &graphql.Field{
+// RemovePermissionFromAPIKeyMutation returns APIKey!
+var RemovePermissionFromAPIKeyMutation = &graphql.Field{
 	Type:        graphql.NewNonNull(apiKeyType),
 	Description: "[Auth] Remove a permission to the api key",
 	Args: graphql.FieldConfigArgument{
 		"input": &graphql.ArgumentConfig{
 			Type: graphql.NewInputObject(graphql.InputObjectConfig{
-				Name: "RemovePermissionToAPIKeyInput",
+				Name: "RemovePermissionFromAPIKeyInput",
 				Fields: graphql.InputObjectConfigFieldMap{
 					"key":        &graphql.InputObjectFieldConfig{Type: graphql.NewNonNull(graphql.String)},
 					"permission": &graphql.InputObjectFieldConfig{Type: graphql.NewNonNull(graphql.String)},

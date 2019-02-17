@@ -3,12 +3,13 @@ package services
 import (
 	"bytes"
 	"encoding/json"
-	"fmt"
+	"errors"
 	"net/http"
 )
 
 var (
-	ErrInternal = fmt.Errorf("unknown error, please retry later")
+	ErrInternal     = errors.New("unknown error, please retry later")
+	ErrUnauthorized = errors.New("Unauthorized")
 )
 
 type userInfo struct {
@@ -25,7 +26,7 @@ func getUserInfo(accessToken string) (*userInfo, error) {
 
 	res, _ := httpClient.Do(req)
 	if res.StatusCode != 200 {
-		return nil, fmt.Errorf("authorization failed (" + res.Status + ")")
+		return nil, ErrUnauthorized
 	}
 
 	var user userInfo

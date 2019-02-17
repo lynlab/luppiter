@@ -25,15 +25,20 @@ func (t *Template) Render(w io.Writer, name string, data interface{}, c echo.Con
 
 func generateContext(c echo.Context) context.Context {
 	ctx := context.Background()
-	headers := c.Request().Header["Authorization"]
-	if len(headers) == 1 {
+	if headers := c.Request().Header["Authorization"]; len(headers) == 1 {
 		splits := strings.Split(headers[0], " ")
 		ctx = context.WithValue(ctx, "Authorization", splits[len(splits)-1])
 	} else {
 		ctx = context.WithValue(ctx, "Authorization", "")
 	}
 
-	key := c.QueryParam("key")
+	key := ""
+	if headers := c.Request().Header["X-Api-Key"]; len(headers) == 1 {
+		key = headers[0]
+	} else {
+		key = c.QueryParam("key")
+	}
+
 	if key != "" {
 		ctx = context.WithValue(ctx, "APIKey", key)
 	} else {
@@ -66,9 +71,9 @@ func main() {
 			Name: "RootMutation",
 			Fields: graphql.Fields{
 				// Auth mutations.
-				"createAPIKey":             services.CreateAPIKeyMutation,
-				"addPermissionToAPIKey":    services.AddPermissionToAPIKeyMutation,
-				"removePermissionToAPIKey": services.RemovePermissionToAPIKeyMutation,
+				"createAPIKey":               services.CreateAPIKeyMutation,
+				"addPermissionToAPIKey":      services.AddPermissionToAPIKeyMutation,
+				"removePermissionFromAPIKey": services.RemovePermissionFromAPIKeyMutation,
 
 				// KeyValue mutation.
 				"setKeyValueItem": services.SetKeyValueItemMutation,
@@ -146,22 +151,21 @@ func main() {
 		return c.String(http.StatusCreated, "")
 	})
 
-	/// HTTP web pages.
-	/// GET /web/**
-	e.Renderer = &Template{templates: template.Must(template.ParseGlob("public/*.html"))}
-	e.GET("/web", func(c echo.Context) error { return c.Render(http.StatusOK, "index", nil) })
-
-	/// Static files serving.
-	e.Static("/statics", "public/statics")
-
 	/// Set middlewares
 	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
 		AllowOrigins: []string{
-			"http://127.0.0.1",
+			"http://127.0.0.1:8080",
 			"http://luppiter.lynlab.co.kr",
 			"https://luppiter.lynlab.co.kr",
 		},
-		AllowHeaders: []string{echo.HeaderOrigin, echo.HeaderContentType, echo.HeaderAccept, "Cache-Control"},
+		AllowHeaders: []string{
+			echo.HeaderOrigin,
+			echo.HeaderContentType,
+			echo.HeaderAccept,
+			echo.HeaderAuthorization,
+			"Cache-Control",
+			"X-Api-Key",
+		},
 	}))
 	e.Use(middleware.GzipWithConfig(middleware.GzipConfig{Level: 5}))
 	e.Use(middleware.BodyLimit("10M"))
