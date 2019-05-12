@@ -2,35 +2,35 @@ package main
 
 import (
 	"errors"
-	"io"
 	"net/http"
 
-	"github.com/julienschmidt/httprouter"
+	"github.com/labstack/echo/v4"
 
 	"github.com/lynlab/luppiter/services/storage"
 )
 
-func getStorageItem(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
-	reader, contentType, err := storage.ReadFile(p.ByName("namespace"), p.ByName("key"))
+func getStorageItem(c echo.Context) error {
+	reader, contentType, err := storage.ReadFile(c.Param("namespace"), c.Param("key"))
 	if err != nil {
-		respondError(w, err)
-		return
+		return respondError(c, err)
 	}
 
-	w.Header().Set("Content-Type", contentType)
-	io.Copy(w, reader)
+	return c.Stream(http.StatusOK, contentType, reader)
 }
 
-func postStorageItem(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
-	upload, _, err := r.FormFile("file")
+func postStorageItem(c echo.Context) error {
+	upload, err := c.FormFile("file")
 	if err != nil {
-		respondError(w, errors.New("bad request"))
-		return
+		return respondError(c, errors.New("bad request"))
+	}
+	src, err := upload.Open()
+	if err != nil {
+		return respondError(c, errors.New("bad request"))
 	}
 
-	err = storage.WriteFile(p.ByName("namespace"), p.ByName("key"), upload)
+	err = storage.WriteFile(c.Param("namespace"), c.Param("key"), src)
 	if err != nil {
-		respondError(w, err)
-		return
+		return respondError(c, err)
 	}
+	return c.String(http.StatusCreated, "")
 }

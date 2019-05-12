@@ -1,35 +1,36 @@
 package main
 
 import (
-	"encoding/json"
 	"fmt"
-	"log"
 	"net/http"
+	"os"
+	"strings"
 
-	"github.com/julienschmidt/httprouter"
+	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
 )
 
-type errorResponse struct {
-	ErrorCode string `json:"errorCode"`
+func ping(c echo.Context) error {
+	return c.String(http.StatusOK, "pong")
 }
 
-func ping(w http.ResponseWriter, _ *http.Request, _ httprouter.Params) {
-	w.Write([]byte("pong"))
-}
-
-func respondError(w http.ResponseWriter, err error) {
-	body, _ := json.Marshal(errorResponse{fmt.Sprintf("%v", err)})
-
-	w.Header().Set("Content-Type", "application/json; charset=utf8")
-	w.WriteHeader(http.StatusBadRequest)
-	w.Write(body)
+func respondError(c echo.Context, err error) error {
+	return c.JSON(http.StatusBadRequest, fmt.Sprintf("%v", err))
 }
 
 func main() {
-	router := httprouter.New()
-	router.GET("/ping", ping)
-	router.GET("/storage/:namespace/:key", getStorageItem)
-	router.POST("/storage/:namespace/:key", postStorageItem)
+	e := echo.New()
 
-	log.Fatal(http.ListenAndServe(":8080", router))
+	e.GET("/", ping)
+	e.GET("/storage/:namespace/:key", getStorageItem)
+	e.POST("/storage/:namespace/:key", postStorageItem)
+
+	e.Use(middleware.Logger())
+	e.Use(middleware.GzipWithConfig(middleware.GzipConfig{Level: 5}))
+	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
+		AllowOrigins: strings.Split(os.Getenv("LUPPITER_ALLOWED_ORIGINS"), ","),
+		AllowHeaders: []string{echo.HeaderOrigin, echo.HeaderContentType, echo.HeaderAccept},
+	}))
+
+	e.Logger.Fatal(e.Start(":1323"))
 }
