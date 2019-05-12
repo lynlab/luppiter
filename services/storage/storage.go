@@ -12,6 +12,7 @@ import (
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/s3"
 	"github.com/h2non/filetype"
+	"github.com/labstack/gommon/log"
 )
 
 const awsBucketName = "luppiter.lynlab.co.kr"
@@ -52,9 +53,9 @@ func ReadFile(namespace, key string) (io.Reader, string, error) {
 
 	// 가져온 파일을 로컬 캐시 디렉토리에 저장한다.
 	os.MkdirAll(cachePath+"/"+namespace, os.ModePerm)
-	newFile, err := os.Create(cachePath + "/" + namespace + "/" + key)
-	if err == nil {
-		io.Copy(newFile, bytes.NewReader(body))
+	err = ioutil.WriteFile(cachePath+"/"+namespace+"/"+key, body, 0644)
+	if err != nil {
+		log.Warn("failed to save file: " + namespace + "/" + key)
 	}
 
 	return bytes.NewReader(body), *output.ContentType, nil

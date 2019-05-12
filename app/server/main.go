@@ -21,7 +21,7 @@ func respondError(c echo.Context, err error) error {
 func main() {
 	e := echo.New()
 
-	e.GET("/", ping)
+	e.GET("/ping", ping)
 	e.GET("/storage/:namespace/:key", getStorageItem)
 	e.POST("/storage/:namespace/:key", postStorageItem)
 
