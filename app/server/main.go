@@ -24,6 +24,8 @@ func main() {
 	e.GET("/ping", ping)
 	e.GET("/storage/:namespace/:key", getStorageItem)
 	e.POST("/storage/:namespace/:key", postStorageItem)
+	e.GET("/vulcan/key_values/:key", getKeyValueItem)
+	e.POST("/vulcan/key_values/:key", postKeyValueItem)
 
 	e.Use(middleware.Logger())
 	e.Use(middleware.GzipWithConfig(middleware.GzipConfig{Level: 5}))
