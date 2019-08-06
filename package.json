@@ -15,7 +15,7 @@
     "build": "tsc",
     "prestart": "yarn lint; yarn build",
     "start": "node .",
-    "typeorm": "ts-node ./node_modules/typeorm/cli.js",
+    "typeorm": "node ./node_modules/typeorm/cli.js",
     "seed": "TYPEORM_MIGRATIONS=dist/seeds/*.js yarn typeorm migration:run"
   },
   "dependencies": {
