@@ -76,8 +76,8 @@ app.put("/vulcan/storage/buckets/:name", permitted(vulcanStorage.updateBucket, "
 app.delete("/vulcan/storage/buckets/:name", permitted(vulcanStorage.deleteBucket, "Storage::Write"));
 
 // File Storage
-app.get("/storage/:namespace/:key", permitted(storage.readFile, "Storage::Read", true));
-app.post("/storage/:namespace/:key", permitted(storage.writeFile, "Storage::Write", true));
+app.get("/storage/:namespace/:key(*)", permitted(storage.readFile, "Storage::Read", true));
+app.post("/storage/:namespace/:key(*)", permitted(storage.writeFile, "Storage::Write", true));
 
 app.get("/ping", (req, res) => res.send("pong"));
 

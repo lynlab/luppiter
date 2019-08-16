@@ -18,7 +18,8 @@ describe("StorageBucket", () => {
     const spy = sinon.stub(S3Client.prototype, "read").returns(new Promise((resolve) => resolve(output)));
 
     beforeEach(() => {
-      const cacheFile = `${process.env.LUPPITER_STORAGE_CACHE_PATH || "/tmp"}/mybucket/mykey`;
+      const keyHash = Buffer.from("mykey").toString("base64");
+      const cacheFile = `${process.env.LUPPITER_STORAGE_CACHE_PATH || "/tmp"}/mybucket/${keyHash}`;
       if (fs.existsSync(cacheFile)) {
         fs.unlinkSync(cacheFile);
       }
@@ -27,7 +28,7 @@ describe("StorageBucket", () => {
     });
 
     it("first try should download from s3", async () => {
-      expect(await bucket.readFile("mykey")).to.equal(output.Body);
+      expect((await bucket.readFile("mykey")).toString()).to.equal(output.Body.toString());
       expect(spy.calledOnceWith("mybucket/mykey")).to.be.true;
     });
 

@@ -45,7 +45,8 @@ export class StorageBucket extends BaseEntity {
    * @param key Key of file
    */
   public async readFile(key: string): Promise<Buffer> {
-    const cacheFile = `${this.cachePath}/${this.name}/${key}`;
+    const keyHash = Buffer.from(key).toString("base64");
+    const cacheFile = `${this.cachePath}/${this.name}/${keyHash}`;
     if (fs.existsSync(cacheFile)) {
       return fs.readFileSync(cacheFile);
     }
