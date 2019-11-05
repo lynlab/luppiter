@@ -42,13 +42,25 @@ describe("StorageBucket", () => {
   context("#writeFile", () => {
     const output: S3.PutObjectOutput = {};
     const spy = sinon.stub(S3Client.prototype, "write").returns(new Promise((resolve) => resolve(output)));
+    after(() => spy.restore());
 
     const body = Buffer.from("example", "utf-8");
 
-    it("should success", async() => {
+    it("should success", async () => {
       expect(await bucket.writeFile("mykey", body)).not.to.throw;
       expect(spy.calledOnceWith("mykey", body)).to.be.true;
     });
+  });
+
+  context("#listFiles", () => {
+    const output: S3.ListObjectsV2Output = {Contents: [], CommonPrefixes: []};
+    const spy = sinon.stub(S3Client.prototype, "list").returns(new Promise((resolve) => resolve(output)));
+
+    it("should success", async () => {
+      expect(await bucket.listFiles()).not.to.throw;
+    });
+
+    spy.restore();
   });
 
 });

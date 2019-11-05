@@ -74,6 +74,7 @@ app.get("/vulcan/storage/buckets", permitted(vulcanStorage.listBuckets, "Storage
 app.post("/vulcan/storage/buckets", permitted(vulcanStorage.createBucket, "Storage::Write"));
 app.put("/vulcan/storage/buckets/:name", permitted(vulcanStorage.updateBucket, "Storage::Write"));
 app.delete("/vulcan/storage/buckets/:name", permitted(vulcanStorage.deleteBucket, "Storage::Write"));
+app.get("/vulcan/storage/buckets/:name/files", permitted(vulcanStorage.listBucketFiles, "Storage::Read"));
 
 // File Storage
 app.get("/storage/:namespace/:key(*)", permitted(storage.readFile, "Storage::Read", true));

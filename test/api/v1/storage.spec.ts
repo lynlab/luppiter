@@ -1,8 +1,11 @@
+import S3 from "aws-sdk/clients/s3";
 import { expect } from "chai";
 import faker from "faker";
 import { Factory } from "rosie";
+import sinon from "sinon";
 
 import mockRequest from "../mock-request";
+import S3Client from "../../../src/libs/s3";
 import { Member } from "../../../src/models/auth/member";
 import { ApiKey } from "../../../src/models/auth/api_key";
 import { Permission } from "../../../src/models/auth/permission";
@@ -164,5 +167,27 @@ describe("vulcan storage apis", () => {
         })
         .catch(e => done(e));
     });
+  });
+
+  describe("GET /vulcan/storage/buckets/:name/files", () => {
+    const output: S3.ListObjectsV2Output = { Contents: [], CommonPrefixes: [] };
+    const spy = sinon.stub(S3Client.prototype, "list").returns(new Promise((resolve) => resolve(output)));
+
+    let bucket: StorageBucket;
+    beforeEach(async () => {
+      bucket = await Factory.build<StorageBucket>("StorageBucket", { member });
+    });
+
+    it("success", (done) => {
+      mockRequest.get(`/vulcan/storage/buckets/${bucket.name}/files`)
+        .set("X-Api-Key", apiKey.key)
+        .then(res => {
+          expect(res.status).to.equal(200);
+          done();
+        })
+        .catch(e => done(e));
+    });
+
+    spy.restore();
   });
 });

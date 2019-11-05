@@ -77,9 +77,33 @@ async function deleteBucket(req: Request, res: Response) {
   res.json(bucket.toJson());
 }
 
+// GET /vulcan/storage/buckets/:name/files
+//
+// Required permission: `Storage::Read`
+// Query params:
+//   - prefix(string?) : limits name of keys with the specified prefix
+//   - cursor(string?) : base64 + url encoded file name
+async function listBucketFiles(req: Request, res: Response) {
+  const apiKey: ApiKey = expressContext.get("request:api_key");
+  const bucket = await StorageBucket.findOne({ where: { name: req.params.name }, relations: ["member"] });
+  if (!bucket || bucket.member.id !== apiKey.member.id) {
+    res.sendStatus(401);
+    return;
+  }
+
+  const { prefix, cursor } = req.query;
+  let decodedCursor: string;
+  if (cursor) {
+    decodedCursor = Buffer.from(cursor, "base64").toString("utf-8");
+  }
+
+  res.json(await bucket.listFiles(prefix, decodedCursor));
+}
+
 export default {
   listBuckets,
   createBucket,
   updateBucket,
   deleteBucket,
+  listBucketFiles,
 };

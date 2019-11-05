@@ -1,10 +1,11 @@
 import fs from "fs";
-
 import {
   BaseEntity, Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn,
 } from "typeorm";
+
 import S3Client from "../../libs/s3";
 import { Member } from "../auth/member";
+import { StorageFile } from "./file";
 
 @Entity({ name: "storage_buckets" })
 export class StorageBucket extends BaseEntity {
@@ -69,6 +70,26 @@ export class StorageBucket extends BaseEntity {
     fs.writeFileSync(cacheFile, fileBody, { mode: 0o600 });
 
     return fileBody;
+  }
+
+  public async listFiles(prefix?: string, cursor?: string): Promise<StorageFile[]> {
+    const bucketPrefix = prefix ? `${this.name}/${prefix}/` : `${this.name}/`;
+    const bucketCursor = cursor ? `${this.name}/${cursor}` : null;
+    const result = await this.s3.list(bucketPrefix, bucketCursor);
+
+    const files = result.Contents.map((c) => {
+      return {
+        name: c.Key.replace(`${this.name}/`, ""),
+        size: c.Size,
+        isDirectory: false,
+        updatedAt: c.LastModified.toISOString(),
+      };
+    }).filter((f) => f.size !== 0);
+    const directories = result.CommonPrefixes.map((p) => {
+      return { name: p.Prefix.replace(`${this.name}/`, ""), size: 0, isDirectory: true, updatedAt: null };
+    });
+
+    return files.concat(directories);
   }
 
   public async writeFile(key: string, body: Buffer) {
