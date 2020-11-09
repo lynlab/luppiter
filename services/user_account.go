@@ -1,4 +1,4 @@
-package service
+package services
 
 import (
 	"context"
@@ -6,8 +6,8 @@ import (
 
 	"github.com/dgrijalva/jwt-go"
 	"github.com/google/uuid"
-	"github.com/hellodhlyn/luppiter/model"
-	"github.com/hellodhlyn/luppiter/repository"
+	"github.com/hellodhlyn/luppiter/models"
+	"github.com/hellodhlyn/luppiter/repositories"
 	"google.golang.org/api/idtoken"
 )
 
@@ -16,17 +16,17 @@ const (
 )
 
 type UserAccountService interface {
-	FindOrCreateByGoogleAccount(string) (*model.UserAccount, error)
+	FindOrCreateByGoogleAccount(string) (*models.UserAccount, error)
 }
 
 type UserAccountServiceImpl struct {
-	accountRepo  repository.UserAccountRepository
-	identityRepo repository.UserIdentityRepository
+	accountRepo  repositories.UserAccountRepository
+	identityRepo repositories.UserIdentityRepository
 	validator    *idtoken.Validator
 	audience     string
 }
 
-func NewUserAccountService(accountRepo repository.UserAccountRepository, identityRepo repository.UserIdentityRepository) (UserAccountService, error) {
+func NewUserAccountService(accountRepo repositories.UserAccountRepository, identityRepo repositories.UserIdentityRepository) (UserAccountService, error) {
 	googleClientID := os.Getenv("GOOGLE_CLIENT_ID")
 	googleCredPath := os.Getenv("GOOGLE_SECRET_ACCOUNT_PATH")
 
@@ -38,7 +38,7 @@ func NewUserAccountService(accountRepo repository.UserAccountRepository, identit
 	return &UserAccountServiceImpl{accountRepo, identityRepo, validator, googleClientID}, nil
 }
 
-func (svc *UserAccountServiceImpl) FindOrCreateByGoogleAccount(idToken string) (*model.UserAccount, error) {
+func (svc *UserAccountServiceImpl) FindOrCreateByGoogleAccount(idToken string) (*models.UserAccount, error) {
 	payload, err := svc.validator.Validate(context.Background(), idToken, svc.audience)
 	if err != nil {
 		return nil, err
@@ -51,10 +51,10 @@ func (svc *UserAccountServiceImpl) FindOrCreateByGoogleAccount(idToken string) (
 		token, _ := jwt.Parse(idToken, nil)
 		claims := token.Claims.(jwt.MapClaims)
 
-		identity := &model.UserIdentity{UUID: uuid.New().String(), Username: claims["name"].(string), Email: claims["email"].(string)}
+		identity := &models.UserIdentity{UUID: uuid.New().String(), Username: claims["name"].(string), Email: claims["email"].(string)}
 		svc.identityRepo.Save(identity)
 
-		account = &model.UserAccount{Provider: providerGoogle, ProviderID: payload.Subject, IdentityID: identity.ID, Identity: *identity}
+		account = &models.UserAccount{Provider: providerGoogle, ProviderID: payload.Subject, IdentityID: identity.ID, Identity: *identity}
 		svc.accountRepo.Save(account)
 	}
 

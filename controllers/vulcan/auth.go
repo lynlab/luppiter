@@ -5,8 +5,8 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/hellodhlyn/luppiter/controller"
-	"github.com/hellodhlyn/luppiter/service"
+	"github.com/hellodhlyn/luppiter/controllers"
+	"github.com/hellodhlyn/luppiter/services"
 	"github.com/julienschmidt/httprouter"
 )
 
@@ -17,17 +17,17 @@ type AuthController interface {
 }
 
 type AuthControllerImpl struct {
-	accountSvc service.UserAccountService
-	appSvc     service.ApplicationService
-	tokenSvc   service.AccessTokenService
-	authSvc    service.AuthenticationService
+	accountSvc services.UserAccountService
+	appSvc     services.ApplicationService
+	tokenSvc   services.AccessTokenService
+	authSvc    services.AuthenticationService
 }
 
 func NewAuthController(
-	accountSvc service.UserAccountService,
-	appSvc service.ApplicationService,
-	tokenSvc service.AccessTokenService,
-	authSvc service.AuthenticationService,
+	accountSvc services.UserAccountService,
+	appSvc services.ApplicationService,
+	tokenSvc services.AccessTokenService,
+	authSvc services.AuthenticationService,
 ) (AuthController, error) {
 	return &AuthControllerImpl{accountSvc, appSvc, tokenSvc, authSvc}, nil
 }
@@ -64,7 +64,7 @@ func (ctrl *AuthControllerImpl) GetMe(w http.ResponseWriter, r *http.Request, _ 
 		http.Error(w, err.Error(), http.StatusUnauthorized)
 		return
 	}
-	controller.JsonResponse(w, &MeResBody{UUID: user.UUID, Email: user.Email, Username: user.Username})
+	controllers.JsonResponse(w, &MeResBody{UUID: user.UUID, Email: user.Email, Username: user.Username})
 }
 
 // POST /vulcan/auth/signin/google
@@ -89,7 +89,7 @@ func (ctrl *AuthControllerImpl) AuthByGoogle(w http.ResponseWriter, r *http.Requ
 	}
 
 	token, _ := ctrl.tokenSvc.CreateAccessToken(&account.Identity, app)
-	controller.JsonResponse(w, &SignInResBody{ActivationKey: token.ActivationKey})
+	controllers.JsonResponse(w, &SignInResBody{ActivationKey: token.ActivationKey})
 }
 
 // POST /vulcan/auth/activate
@@ -106,5 +106,5 @@ func (ctrl *AuthControllerImpl) ActivateAccessToken(w http.ResponseWriter, r *ht
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	controller.JsonResponse(w, &ActivateResBody{AccessKey: token.AccessKey, SecretKey: token.SecretKey, ExpireAt: token.ExpireAt})
+	controllers.JsonResponse(w, &ActivateResBody{AccessKey: token.AccessKey, SecretKey: token.SecretKey, ExpireAt: token.ExpireAt})
 }

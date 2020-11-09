@@ -4,8 +4,8 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/hellodhlyn/luppiter/controller"
-	"github.com/hellodhlyn/luppiter/service"
+	"github.com/hellodhlyn/luppiter/controllers"
+	"github.com/hellodhlyn/luppiter/services"
 	"github.com/julienschmidt/httprouter"
 )
 
@@ -14,10 +14,10 @@ type ApplicationsController interface {
 }
 
 type ApplicationsControllerImpl struct {
-	svc service.ApplicationService
+	svc services.ApplicationService
 }
 
-func NewApplicationsController(appSvc service.ApplicationService) (ApplicationsController, error) {
+func NewApplicationsController(appSvc services.ApplicationService) (ApplicationsController, error) {
 	return &ApplicationsControllerImpl{appSvc}, nil
 }
 
@@ -35,5 +35,5 @@ func (ctrl *ApplicationsControllerImpl) Get(w http.ResponseWriter, r *http.Reque
 	if app != nil {
 		resBody = &ApplicationBody{UUID: app.UUID, Name: app.Name, CreatedAt: app.CreatedAt}
 	}
-	controller.JsonResponse(w, resBody)
+	controllers.JsonResponse(w, resBody)
 }

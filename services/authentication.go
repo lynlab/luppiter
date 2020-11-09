@@ -1,4 +1,4 @@
-package service
+package services
 
 import (
 	"errors"
@@ -6,23 +6,23 @@ import (
 	"strings"
 
 	"github.com/dgrijalva/jwt-go"
-	"github.com/hellodhlyn/luppiter/model"
-	"github.com/hellodhlyn/luppiter/repository"
+	"github.com/hellodhlyn/luppiter/models"
+	"github.com/hellodhlyn/luppiter/repositories"
 )
 
 type AuthenticationService interface {
-	Authenticate(*http.Request) (*model.UserIdentity, error)
+	Authenticate(*http.Request) (*models.UserIdentity, error)
 }
 
 type AuthenticationServiceImpl struct {
-	tokenRepo repository.AccessTokenRepository
+	tokenRepo repositories.AccessTokenRepository
 }
 
-func NewAuthenticationService(tokenRepo repository.AccessTokenRepository) (AuthenticationService, error) {
+func NewAuthenticationService(tokenRepo repositories.AccessTokenRepository) (AuthenticationService, error) {
 	return &AuthenticationServiceImpl{tokenRepo}, nil
 }
 
-func (svc *AuthenticationServiceImpl) Authenticate(r *http.Request) (*model.UserIdentity, error) {
+func (svc *AuthenticationServiceImpl) Authenticate(r *http.Request) (*models.UserIdentity, error) {
 	authorization := r.Header.Get("Authorization")
 	splits := strings.Split(authorization, " ")
 	if len(splits) != 2 {

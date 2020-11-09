@@ -1,4 +1,4 @@
-package service
+package services
 
 import (
 	"crypto/rand"
@@ -7,25 +7,25 @@ import (
 	"time"
 
 	"github.com/dgrijalva/jwt-go"
-	"github.com/hellodhlyn/luppiter/model"
-	"github.com/hellodhlyn/luppiter/repository"
+	"github.com/hellodhlyn/luppiter/models"
+	"github.com/hellodhlyn/luppiter/repositories"
 )
 
 type AccessTokenService interface {
-	CreateAccessToken(identity *model.UserIdentity, app *model.Application) (*model.AccessToken, error)
-	ActivateAccessToken(activationToken string) (*model.AccessToken, error)
+	CreateAccessToken(identity *models.UserIdentity, app *models.Application) (*models.AccessToken, error)
+	ActivateAccessToken(activationToken string) (*models.AccessToken, error)
 }
 
 type AccessTokenServiceImpl struct {
-	repo repository.AccessTokenRepository
+	repo repositories.AccessTokenRepository
 }
 
-func NewAccessTokenService(repo repository.AccessTokenRepository) (AccessTokenService, error) {
+func NewAccessTokenService(repo repositories.AccessTokenRepository) (AccessTokenService, error) {
 	return &AccessTokenServiceImpl{repo}, nil
 }
 
-func (svc *AccessTokenServiceImpl) CreateAccessToken(identity *model.UserIdentity, app *model.Application) (*model.AccessToken, error) {
-	token := &model.AccessToken{
+func (svc *AccessTokenServiceImpl) CreateAccessToken(identity *models.UserIdentity, app *models.Application) (*models.AccessToken, error) {
+	token := &models.AccessToken{
 		IdentityID:    identity.ID,
 		Identity:      *identity,
 		ApplicationID: app.ID,
@@ -40,7 +40,7 @@ func (svc *AccessTokenServiceImpl) CreateAccessToken(identity *model.UserIdentit
 	return token, nil
 }
 
-func (svc *AccessTokenServiceImpl) ActivateAccessToken(activationToken string) (*model.AccessToken, error) {
+func (svc *AccessTokenServiceImpl) ActivateAccessToken(activationToken string) (*models.AccessToken, error) {
 	token, _ := jwt.Parse(activationToken, nil)
 	activationKey := token.Claims.(jwt.MapClaims)["activationKey"].(string)
 	accessToken := svc.repo.FindByActivationKey(activationKey)

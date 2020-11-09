@@ -1,13 +1,13 @@
-package controller
+package controllers
 
 import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/hellodhlyn/luppiter/model"
+	"github.com/hellodhlyn/luppiter/models"
 )
 
-func Authorized(w http.ResponseWriter, r *http.Request, fn func(*model.UserIdentity)) {
+func Authorized(w http.ResponseWriter, r *http.Request, fn func(*models.UserIdentity)) {
 
 }
 

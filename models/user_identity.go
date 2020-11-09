@@ -1,4 +1,4 @@
-package model
+package models
 
 type UserIdentity struct {
 	ModelMixin

@@ -7,50 +7,50 @@ import (
 	"os"
 	"strings"
 
-	"github.com/hellodhlyn/luppiter/connection"
-	"github.com/hellodhlyn/luppiter/controller/vulcan"
-	"github.com/hellodhlyn/luppiter/repository"
-	"github.com/hellodhlyn/luppiter/service"
+	"github.com/hellodhlyn/luppiter/connectors"
+	"github.com/hellodhlyn/luppiter/controllers/vulcan"
+	"github.com/hellodhlyn/luppiter/repositories"
+	"github.com/hellodhlyn/luppiter/services"
 	"github.com/julienschmidt/httprouter"
 	"github.com/rs/cors"
 )
 
 func main() {
-	db, err := connection.NewDatabaseConnection()
+	db, err := connectors.NewDatabaseConnection()
 	if err != nil {
 		panic(err)
 	}
 
-	accountRepo, err := repository.NewUserAccountRepository(db)
+	accountRepo, err := repositories.NewUserAccountRepository(db)
 	if err != nil {
 		panic(err)
 	}
-	identityRepo, err := repository.NewUserIdentityRepository(db)
+	identityRepo, err := repositories.NewUserIdentityRepository(db)
 	if err != nil {
 		panic(err)
 	}
-	tokenRepo, err := repository.NewAccessTokenRepository(db)
+	tokenRepo, err := repositories.NewAccessTokenRepository(db)
 	if err != nil {
 		panic(err)
 	}
-	appRepo, err := repository.NewApplicationRepository(db)
+	appRepo, err := repositories.NewApplicationRepository(db)
 	if err != nil {
 		panic(err)
 	}
 
-	accountSvc, err := service.NewUserAccountService(accountRepo, identityRepo)
+	accountSvc, err := services.NewUserAccountService(accountRepo, identityRepo)
 	if err != nil {
 		panic(err)
 	}
-	tokenSvc, err := service.NewAccessTokenService(tokenRepo)
+	tokenSvc, err := services.NewAccessTokenService(tokenRepo)
 	if err != nil {
 		panic(err)
 	}
-	appSvc, err := service.NewApplicationService(appRepo)
+	appSvc, err := services.NewApplicationService(appRepo)
 	if err != nil {
 		panic(err)
 	}
-	authSvc, err := service.NewAuthenticationService(tokenRepo)
+	authSvc, err := services.NewAuthenticationService(tokenRepo)
 	if err != nil {
 		panic(err)
 	}

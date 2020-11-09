@@ -1,4 +1,4 @@
-package repository
+package repositories
 
 import (
 	"context"
@@ -8,12 +8,12 @@ import (
 	"google.golang.org/api/idtoken"
 	"gorm.io/gorm"
 
-	"github.com/hellodhlyn/luppiter/model"
+	"github.com/hellodhlyn/luppiter/models"
 )
 
 type UserAccountRepository interface {
-	FindByProviderId(string, string) *model.UserAccount
-	Save(*model.UserAccount)
+	FindByProviderId(string, string) *models.UserAccount
+	Save(*models.UserAccount)
 }
 
 type UserAccountRepositoryImpl struct {
@@ -32,15 +32,15 @@ func NewUserAccountRepository(db *gorm.DB) (UserAccountRepository, error) {
 	return &UserAccountRepositoryImpl{idTknClient, db}, nil
 }
 
-func (repo *UserAccountRepositoryImpl) FindByProviderId(provider, providerId string) *model.UserAccount {
-	var account model.UserAccount
-	repo.db.Where(&model.UserAccount{Provider: provider, ProviderID: providerId}).Preload("Identity").First(&account)
+func (repo *UserAccountRepositoryImpl) FindByProviderId(provider, providerId string) *models.UserAccount {
+	var account models.UserAccount
+	repo.db.Where(&models.UserAccount{Provider: provider, ProviderID: providerId}).Preload("Identity").First(&account)
 	if account.ID == 0 {
 		return nil
 	}
 	return &account
 }
 
-func (repo *UserAccountRepositoryImpl) Save(account *model.UserAccount) {
+func (repo *UserAccountRepositoryImpl) Save(account *models.UserAccount) {
 	repo.db.Save(account)
 }
