@@ -5,9 +5,10 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/hellodhlyn/luppiter/model"
-	"github.com/jinzhu/gorm"
 	"google.golang.org/api/idtoken"
+	"gorm.io/gorm"
+
+	"github.com/hellodhlyn/luppiter/model"
 )
 
 type UserAccountRepository interface {

@@ -1,8 +1,9 @@
 package repository
 
 import (
+	"gorm.io/gorm"
+
 	"github.com/hellodhlyn/luppiter/model"
-	"github.com/jinzhu/gorm"
 )
 
 type AccessTokenRepository interface {

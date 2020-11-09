@@ -7,14 +7,14 @@
 
 ### Prerequisites
 
-- Go 1.14 (or greater)
+- Go 1.15 (or greater)
 - Docker Compose
 
 ### Start Database
 
 ```sh
 # Start database
-docker-compose -f compose/local/docker-compose.yaml up -d
+docker-compose up -d
 
 # Run migration
 go run ./app/migrate up

@@ -9,23 +9,15 @@ import (
 	"github.com/golang-migrate/migrate/v4/database/postgres"
 	_ "github.com/golang-migrate/migrate/v4/source/file"
 	_ "github.com/lib/pq"
+
+	"github.com/hellodhlyn/luppiter/internal/env"
 )
 
-func getenvOrDefault(key, defaultValue string) string {
-	if value, ok := os.LookupEnv(key); ok {
-		return value
-	}
-	return defaultValue
-}
-
 func main() {
-	dbUsername := getenvOrDefault("DB_USERNAME", "postgres")
-	dbPassword := getenvOrDefault("DB_PASSWORD", "rootpass")
-	dbHost := getenvOrDefault("DB_HOST", "127.0.0.1")
-	dbPort := getenvOrDefault("DB_PORT", "5432")
-	dbName := getenvOrDefault("DB_NAME", "luppiter")
-
-	db, err := sql.Open("postgres", fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=disable", dbUsername, dbPassword, dbHost, dbPort, dbName))
+	db, err := sql.Open(
+		"postgres",
+		fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=disable", env.DatabaseUsername, env.DatabasePassword, env.DatabaseHost, env.DatabasePort, env.DatabaseName),
+	)
 	if err != nil {
 		panic(err)
 	}
